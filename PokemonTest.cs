@@ -1,11 +1,11 @@
-﻿using UnityEngine;
+﻿using System;
 using System.Collections;
 
-public class PokemonTest : MonoBehaviour {
-	
+public class PokemonTest
+{
 	Pokemon squirtle;
 
-	void Start()
+	static void Main()
 	{
 		ArrayList list = new ArrayList();
 		list.AddRange(new int[] { 44, 48, 65, 50, 64, 43 });
@@ -21,6 +21,6 @@ public class PokemonTest : MonoBehaviour {
 		list.AddRange(new string[] { "", "" });
 
 		Pokemon squirtle = new Pokemon(new PokedexID("Squirtle", 7), 5, new BaseStats(list));
-		Debug.Log(squirtle.ToString());
+		Console.WriteLine(squirtle.ToString());
 	}
 }
