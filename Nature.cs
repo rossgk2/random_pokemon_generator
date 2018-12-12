@@ -84,4 +84,30 @@
 	{
 		return name;
 	}
+
+    /*
+     * Determines the modifier that this Nature object applies to the Stat stat.
+     */
+    public float ComputeModifier(string statName)
+    {
+        float modifier = 1f;
+        if (statName == this.increasedStat.ToLower())
+        {
+            modifier = 1.1f;
+        }
+        else if (statName == this.decreasedStat.ToLower())
+        {
+            modifier = .9f;
+        }
+        return modifier;
+    }
+
+
+    /*
+     *  Overload for above method in case I want to pass in a "Stat" object instead of its name.
+     */ 
+    public float ComputeModifier(Stat stat)
+    {
+        return ComputeModifier(stat.name);
+    }
 }

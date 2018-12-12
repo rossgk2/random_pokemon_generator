@@ -74,17 +74,21 @@ public class Pokemon
 		
 		type = (string) baseStats.GetStat("Type 2") == "" || baseStats.GetStat("Type 2") == null ? new string[] { (string)baseStats.GetStat("Type 1") } :
 		new string[] { (string)baseStats.GetStat("Type 1"), (string)baseStats.GetStat("Type 2") };
-		
-		HP = new HP("HP", level, (int)baseStats.GetStat("Base HP"));
-		
-		nature = Nature.natures[personalityValue % 27];
+
+        nature = Nature.natures[personalityValue % 27];
+
+        HP = new HP("HP", level, (int)baseStats.GetStat("Base HP"));
 		
 		string[] statObjectLabels = new string[] { "Attack", "Defense", "Special Attack", "Special Defense", "Speed" };
 		stats = new Stat[5];
 		for (int i = 0; i < stats.Length; i++)
 		{
 			int baseStat = ((int)baseStats.GetStat("Base " + statObjectLabels[i]));
-			stats[i] = new Stat(statObjectLabels[i], level, baseStat, nature);
+
+            //decide whether the Pokemon's nature increases or decreases each stat
+            string statName = statObjectLabels[i];
+            float modifier = nature.ComputeModifier(statName);
+            stats[i] = new Stat(statName, level, baseStat, modifier);
 		}
 		
 		gender = personalityValue % 256 >= (int)baseStats.GetStat("Gender Threshold") ? "Male" : "Female";
