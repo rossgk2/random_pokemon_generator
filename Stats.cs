@@ -5,6 +5,7 @@
  * initalized to 0. The actual value of a specific stat (represented as "statValue" in this code) that a Pokemon gets is determined 
  * by the Pokemon's level, the Pokemon's "baseStatValue" field, and by a little bit of randomness.
  * 
+ * Each Stat has an associated EV value. (EV is "effort" in PokeApi).
  * Each Stat also has a "modifier" field, because a Pokemon's "Nature" causes some "Stat"s to increase and some to decrease.
  */
 
@@ -54,7 +55,7 @@ public class Stat
 
     public Stat() { }
 	
-    public Stat(string name, int pokemonLevel, int baseStat, float modifier)
+    public Stat(string name, int pokemonLevel, int baseStat, int EV, float modifier)
     {
         this.name = name;
         this.pokemonLevel = pokemonLevel;
@@ -62,7 +63,6 @@ public class Stat
         this.modifier = modifier;
 
         IV = RandomNumberGenerator.RANDOMGEN().Next(32); //UnityEngine.Random.Range(0, 32); // 0 - 31
-        EV = 0;
 
         ComputeStatValue();
     }
@@ -87,7 +87,7 @@ public class Stat
  */
 public class HP : Stat
 {
-	public HP(string name, int pokemonLevel, int baseStat) : base(name, pokemonLevel, baseStat, 1)
+	public HP(string name, int pokemonLevel, int baseStat, int EV) : base(name, pokemonLevel, baseStat, EV, 1)
 	{ }
 	
 	public void SetHP(int HP)

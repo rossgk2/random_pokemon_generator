@@ -77,7 +77,7 @@ public class Pokemon
 
         nature = Nature.natures[personalityValue % 27];
 
-        HP = new HP("HP", level, (int)baseStats.GetStat("Base HP"));
+        HP = new HP("HP", level, (int)baseStats.GetStat("Base HP"), 0);
 		
 		string[] statObjectLabels = new string[] { "Attack", "Defense", "Special Attack", "Special Defense", "Speed" };
 		stats = new Stat[5];
@@ -88,7 +88,8 @@ public class Pokemon
             //decide whether the Pokemon's nature increases or decreases each stat
             string statName = statObjectLabels[i];
             float modifier = nature.ComputeModifier(statName);
-            stats[i] = new Stat(statName, level, baseStat, modifier);
+            int evYield = baseStats.evYields.getEVForStat(statObjectLabels[i]);
+            stats[i] = new Stat(statName, level, baseStat, evYield, modifier);
 		}
 		
 		gender = personalityValue % 256 >= (int)baseStats.GetStat("Gender Threshold") ? "Male" : "Female";
@@ -182,14 +183,21 @@ public class BaseStats
 	}
 	
 	static readonly string[] labels = {"base hp", "base attack", "base defense", "base special attack",
-		"base special defense", "base speed", "type 1", "type 2", "catch rate", "base exp yield", "ev yield", "item 1",
+		"base special defense", "base speed", "type 1", "type 2", "catch rate", "base exp yield", "item 1",
 		"item 2", "gender threshold", "egg cycles to hatch", "base friendship", "leveling rate", "egg group 1",
 		"egg group 2", "ability 1", "ability 2", "safari zone rate", "pokedex color", "height", "weight",
 		"body style", "footprint"};
 	
-	public BaseStats(ArrayList baseStats)
+    public EVYield evYields
+    {
+        get;
+        private set;
+    }
+
+	public BaseStats(ArrayList baseStats, EVYield evYields)
 	{
 		this.baseStats = baseStats;
+        this.evYields = evYields;
 	}
 	
 	public object GetStat(string query)
@@ -212,4 +220,45 @@ public class BaseStats
 		}
 		return -1;
 	}
+}
+
+public class EVYield
+{
+    static string[] statLabels = new string[] { "HP", "Attack", "Defense", "Special Attack", "Special Defense", "Speed" };
+    int[] evYieldArray;
+
+    public EVYield(int[] evYieldArray)
+    {
+        this.evYieldArray = evYieldArray;
+    }
+
+    public int getEVForStat(string stat)
+    {
+        int index = -1;
+        
+        for (int i = 0; i < statLabels.Length; ++i)
+        {
+            if (stat == statLabels[i])
+            {
+                index = i;
+                break;
+            }
+        }
+        return evYieldArray[index];
+    }
+
+    public override string ToString()
+    {
+        string ret = "[";
+        for (int i = 0; i < statLabels.Length; ++ i)
+        {
+            ret += statLabels[i] + " EV: " + evYieldArray[i];
+            if (i != statLabels.Length - 1)
+            {
+                ret += ", ";
+            }
+        }
+        ret += "]";
+        return ret;
+    }
 }
