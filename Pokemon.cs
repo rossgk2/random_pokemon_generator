@@ -1,17 +1,29 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 
 public class Pokemon
 {
-	public PokedexID pokedexID
+    public static int MAX_POKEMON_LEVEL = 100;
+    public static int MAX_POKEDEX_NUMBER = 802;
+
+    public PokedexID pokedexID
 	{
 		get;
 		private set;
 	}
 	
-	public string[] type
+	public List<string> types
 	{
-		get;
-		private set;
+		get
+        {
+            return baseStats.types;
+        }
+        private set
+        {
+            types = value;
+        }
 	}
 	
 	public int level
@@ -28,16 +40,31 @@ public class Pokemon
 		private set;
 	}
 	
-	public Stat[] stats
+	public Dictionary<string, Stat> stats
 	{
-		get;
-		private set;
+		get
+        {
+            return baseStats.statDict;
+        }
+		private set
+        {
+            stats = value;
+        }
 	}
 	
 	public HP HP
 	{
-		get;
-		private set;
+        get
+        {
+            Stat ret;
+            bool success = stats.TryGetValue("HP", out ret);
+            if (!success) { Console.WriteLine("HP \"get\" property failed."); } 
+            return (HP) ret;
+        }
+		private set
+        {
+            HP = value;
+        }
 	}
 	
 	public string gender
@@ -45,17 +72,19 @@ public class Pokemon
 		get;
 		private set;
 	}
-	
-	public Ability ability
-	{
-		get;
-		private set;
-	}
+
+    public Ability ability;
 	
 	public Nature nature
 	{
-		get;
-		private set;
+		get
+        {
+            return baseStats.nature;
+        }
+		private set
+        {
+            nature = value;
+        }
 	}
 	
 	public bool isShiny
@@ -69,40 +98,33 @@ public class Pokemon
 		this.pokedexID = pokedexID;
 		this.level = level;
 		this.baseStats = baseStats;
-		
-		personalityValue = GeneratePersonalityValue();
-		
-		type = (string) baseStats.GetStat("Type 2") == "" || baseStats.GetStat("Type 2") == null ? new string[] { (string)baseStats.GetStat("Type 1") } :
-		new string[] { (string)baseStats.GetStat("Type 1"), (string)baseStats.GetStat("Type 2") };
 
-        nature = Nature.natures[personalityValue % 27];
+        this.personalityValue = baseStats.personalityValue; //this must occur in constructor
+        foreach (KeyValuePair<string, Stat> kvp in baseStats.statDict)
+        {
+            kvp.Value.ComputeStatValue(level);
+        }
 
-        HP = new HP("HP", level, (int)baseStats.GetStat("Base HP"), 0);
-		
-		string[] statObjectLabels = new string[] { "Attack", "Defense", "Special Attack", "Special Defense", "Speed" };
-		stats = new Stat[5];
-		for (int i = 0; i < stats.Length; i++)
-		{
-			int baseStat = ((int)baseStats.GetStat("Base " + statObjectLabels[i]));
+        gender = personalityValue % 256 >= baseStats.genderThreshold ? "Male" : "Female";
 
-            //decide whether the Pokemon's nature increases or decreases each stat
-            string statName = statObjectLabels[i];
-            float modifier = nature.ComputeModifier(statName);
-            int evYield = baseStats.evYields.getEVForStat(statObjectLabels[i]);
-            stats[i] = new Stat(statName, level, baseStat, evYield, modifier);
-		}
-		
-		gender = personalityValue % 256 >= (int)baseStats.GetStat("Gender Threshold") ? "Male" : "Female";
-		if ((Ability) baseStats.GetStat("Ability 2") == null)
-		{
-			ability = (Ability) baseStats.GetStat("Ability 1");
-		}
-		else
-		{
-			ability = personalityValue % 2 == 0 ? (Ability)baseStats.GetStat("Ability 1") : (Ability)baseStats.GetStat("Ability 2");
-		}
-		isShiny = chance(.0122070312);
-	}
+        List<Ability> abs = baseStats.abilities;
+        if (abs.Count == 1)
+        {
+            ability = abs[0];
+        }
+        else if (abs.Count == 2)
+        {
+            ability = personalityValue % 2 == 0 ? abs[0] : abs[1];
+        }
+        else
+        {
+            ability = new Ability();
+            Console.Error.WriteLine("(The Pokemon " + this.pokedexID.name + " was created with an empty Ability List.\n" +
+                "Abilities have not been implemented yet.)");
+        }
+
+        isShiny = chance(.0122070312);
+    }
 	
 	public void LevelUp()
 	{
@@ -120,36 +142,46 @@ public class Pokemon
 			"Pokedex Number: " + pokedexID.pokedexNumber + "\n" +
 				"Level: " + level + "\n" +
 				"Gender: " + gender + "\n";
-		
-		string typeInfo = type.Length == 2 ? "Type: " + type[0] + ", " + type[1] : "Type: " + type[0];
+
+        string typeInfo = "Types: [" + string.Join(", ", this.types) + "]";
 		
 		s += typeInfo + "\n" +
 			"Nature: " + nature.name + "\n" +
 				"Ability: " + ability.name + "\n" +
 				"Shiny?: " + isShiny + "\n\n" +
-				"Stats: " + "\n\n";
-		
-		foreach (Stat stat in stats)
-		{
-			s += "\t" + stat.ToString() + "\n\n\n";
-		}
+				"Stats: " + "\n\t";
+
+        string statInfo = "";
+        Dictionary<string, Stat> stats = baseStats.statDict;
+        Stat[] indexer = new Stat[stats.Count];
+        stats.Values.CopyTo(indexer, 0);
+        for (int i = 0; i < stats.Count; ++ i)
+        {
+            Stat st = stats[indexer[i].name];
+            statInfo += st.name + ": " + st.baseStatValue + " (base value), " + st.statValue + " (actual value)";
+            if (i != stats.Count - 1)
+            {
+                statInfo += "\n\t";
+            }
+        }
+        s += statInfo;
 		
 		return s;
 	}
 	
-	uint GeneratePersonalityValue()
+	public static uint GeneratePersonalityValue()
 	{
 		uint thirtyBits = (uint)RandomNumberGenerator.RANDOMGEN().Next(1 << 30);
 		uint twoBits = (uint)RandomNumberGenerator.RANDOMGEN().Next(1 << 2);
 		uint fullRange = (thirtyBits << 2) | twoBits;
 		return fullRange;
 	}
-	
-	bool chance(double chance)
-	{
-		double random = new System.Random().NextDouble();
-		return random < chance;
-	}
+
+    bool chance(double chance)
+    {
+        double random = new System.Random().NextDouble();
+        return random < chance;
+    }
 }
 
 public class PokedexID
@@ -176,89 +208,135 @@ public class PokedexID
 //add ability, speciesDescription to baseStats
 public class BaseStats
 {
-	public ArrayList baseStats
-	{
-		get;
-		private set;
-	}
-	
-	static readonly string[] labels = {"base hp", "base attack", "base defense", "base special attack",
-		"base special defense", "base speed", "type 1", "type 2", "catch rate", "base exp yield", "item 1",
-		"item 2", "gender threshold", "egg cycles to hatch", "base friendship", "leveling rate", "egg group 1",
-		"egg group 2", "ability 1", "ability 2", "safari zone rate", "pokedex color", "height", "weight",
-		"body style", "footprint"};
-	
-    public EVYield evYields
+	public string name
     {
         get;
         private set;
     }
 
-	public BaseStats(ArrayList baseStats, EVYield evYields)
-	{
-		this.baseStats = baseStats;
-        this.evYields = evYields;
-	}
-	
-	public object GetStat(string query)
-	{
-		return baseStats[IndexOf(query)];
-	}
-	
-	static int IndexOf(string query)
-	{
-		query = query.ToLower();
-		
-		int i = 0;
-		foreach (string s in labels)
-		{
-			if (query == s)
-			{
-				return i;
-			}
-			i++;
-		}
-		return -1;
-	}
-}
-
-public class EVYield
-{
-    static string[] statLabels = new string[] { "HP", "Attack", "Defense", "Special Attack", "Special Defense", "Speed" };
-    int[] evYieldArray;
-
-    public EVYield(int[] evYieldArray)
+    public uint personalityValue
     {
-        this.evYieldArray = evYieldArray;
+        get;
+        private set;
     }
 
-    public int getEVForStat(string stat)
+    public List<string> types
     {
-        int index = -1;
-        
-        for (int i = 0; i < statLabels.Length; ++i)
-        {
-            if (stat == statLabels[i])
-            {
-                index = i;
-                break;
-            }
-        }
-        return evYieldArray[index];
+        get;
+        private set;
     }
 
-    public override string ToString()
+    public Nature nature
     {
-        string ret = "[";
-        for (int i = 0; i < statLabels.Length; ++ i)
-        {
-            ret += statLabels[i] + " EV: " + evYieldArray[i];
-            if (i != statLabels.Length - 1)
-            {
-                ret += ", ";
-            }
-        }
-        ret += "]";
-        return ret;
+        get;
+        private set;
+    }
+
+    public List<Ability> abilities
+    {
+        get;
+        private set;
+    }
+
+    public Dictionary<string, Stat> statDict
+    {
+        get;
+        private set;
+    }
+
+    public int baseEXPYield
+    {
+        get;
+        private set;
+    }
+
+    public int genderThreshold
+    {
+        get;
+        private set;
+    }
+
+    public int eggCyclesTillHatch
+    {
+        get;
+        private set;
+    }
+
+    public int baseFriendship
+    {
+        get;
+        private set;
+    }
+
+    public string levelingRate
+    {
+        get;
+        private set;
+    }
+
+    public List<string> eggGroups
+    {
+        get;
+        private set;
+    }
+
+    public int safariZoneRate
+    {
+        get;
+        private set;
+    }
+
+    public string pokedexColor
+    {
+        get;
+        private set;
+    }
+
+    public float height
+    {
+        get;
+        private set;
+    }
+
+    public float weight
+    {
+        get;
+        private set;
+    }
+
+    public string bodyStyle
+    {
+        get;
+        private set;
+    }
+
+    public string footprint
+    {
+        get;
+        private set;
+    }
+
+    public BaseStats(string name, uint personalityValue, List<string> types, Nature nature, List<Ability> abilities, Dictionary<string, Stat> statDict,
+        int baseEXPYield, int genderThreshold, int eggCyclesTillHatch, int baseFriendship, string levelingRate, List<string> eggGroups,
+        string pokedexColor, float height, float weight)
+	{
+        this.name = name;
+        this.personalityValue = personalityValue;
+        this.types = types;
+        this.nature = nature;
+        this.abilities = abilities;
+        this.statDict = statDict;
+        this.baseEXPYield = baseEXPYield;
+        this.genderThreshold = genderThreshold;
+        this.eggCyclesTillHatch = eggCyclesTillHatch;
+        this.baseFriendship = baseFriendship;
+        this.levelingRate = levelingRate;
+        this.eggGroups = eggGroups;
+        this.safariZoneRate = 0; //not implemented yet
+        this.pokedexColor = pokedexColor;
+        this.height = height;
+        this.weight = weight;
+        this.bodyStyle = ""; //not implemented yet
+        this.footprint = ""; //not implemented yet 
     }
 }

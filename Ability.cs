@@ -5,4 +5,9 @@
 		get;
 		private set;
 	}
+
+    public Ability()
+    {
+        name = "";
+    }
 }

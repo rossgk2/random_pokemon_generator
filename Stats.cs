@@ -17,12 +17,6 @@ public class Stat
 		protected set;
 	}
 	
-	public int pokemonLevel
-	{
-		get;
-		set;
-	}
-	
 	public int statValue
 	{
 		get;
@@ -55,18 +49,17 @@ public class Stat
 
     public Stat() { }
 	
-    public Stat(string name, int pokemonLevel, int baseStat, int EV, float modifier)
+
+    public Stat(string name, int baseStat, int EV, float modifier)
     {
         this.name = name;
-        this.pokemonLevel = pokemonLevel;
         this.baseStatValue = baseStat;
+        this.EV = EV;
         this.modifier = modifier;
 
         IV = RandomNumberGenerator.RANDOMGEN().Next(32); //UnityEngine.Random.Range(0, 32); // 0 - 31
-
-        ComputeStatValue();
     }
-    public virtual void ComputeStatValue()
+    public virtual void ComputeStatValue(int pokemonLevel)
     {
         statValue = (((IV + (2 * baseStatValue) + (EV / 4)) * pokemonLevel) / 100) + 5;
         statValue = (int) (statValue * modifier);
@@ -74,7 +67,7 @@ public class Stat
 
     public override string ToString()
     {
-        return name + ": \n\n\t" +
+        return name + ": \t" +
             "Stat Value: " + statValue + "\n\t" +
                 "Base Stat: " + baseStatValue + "\n\t" +
                 "IV: " + IV + "\n\t" +
@@ -87,7 +80,7 @@ public class Stat
  */
 public class HP : Stat
 {
-	public HP(string name, int pokemonLevel, int baseStat, int EV) : base(name, pokemonLevel, baseStat, EV, 1)
+	public HP(string name, int baseStat, int EV) : base(name, baseStat, EV, 1)
 	{ }
 	
 	public void SetHP(int HP)
@@ -95,7 +88,7 @@ public class HP : Stat
 		statValue = HP;
 	}
 	
-	public override void ComputeStatValue()
+	public override void ComputeStatValue(int pokemonLevel)
 	{
 		statValue = (((IV + (2 * baseStatValue) + (EV / 4) + 100) * pokemonLevel) / 100) + 10;
 	}
