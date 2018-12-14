@@ -107,21 +107,10 @@ public class Pokemon
 
         gender = personalityValue % 256 >= baseStats.genderThreshold ? "Male" : "Female";
 
+        //randomly decide which ability from the list of possible abilities the Pokemon gets
         List<Ability> abs = baseStats.abilities;
-        if (abs.Count == 1)
-        {
-            ability = abs[0];
-        }
-        else if (abs.Count == 2)
-        {
-            ability = personalityValue % 2 == 0 ? abs[0] : abs[1];
-        }
-        else
-        {
-            ability = new Ability();
-            Console.Error.WriteLine("(The Pokemon " + this.pokedexID.name + " was created with an empty Ability List.\n" +
-                "Abilities have not been implemented yet.)");
-        }
+        int rand = new Random(abs.Count).Next();
+        ability = abs[rand % abs.Count];
 
         isShiny = chance(.0122070312);
     }

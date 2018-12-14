@@ -20,7 +20,7 @@ public class PokemonGeneratorMain
         uint personalityValue = Pokemon.GeneratePersonalityValue();
         List<string> types = GetTypes(obj);
         Nature nature = Nature.natures[personalityValue % 25];
-        List<Ability> abilities = new List<Ability>(); //keep empty; abilities haven't been implemented yet
+        List<Ability> abilities = GetAbilities(obj);
         Dictionary<string, Stat> stats = GetStats(obj);
         int baseEXPYield = Int32.Parse(obj.GetValue("base_experience").ToString());
         int genderThreshold = 50; //placeholder
@@ -113,14 +113,42 @@ public class PokemonGeneratorMain
         return typesList;
     }
 
+    /*
+     * A Pokemon has a list of possible abilities. In the Pokemon class, only one of these abilities is (randomly)
+     * chosen for the pokemon.
+     */
+    static List<Ability> GetAbilities(JObject obj)
+    {
+        List<Ability> ret = new List<Ability>();
+        JArray abilities = JArray.Parse(obj.GetValue("abilities").ToString());
+        foreach (JToken ab in abilities)
+        {
+            ret.Add(new Ability(FirstLetterToUpper(ab.Value<JToken>("ability").Value<string>("name"))));
+        }
+        return ret;
+    }
+
     static void Main()
     {
-        Pokemon squirtle = GenerateRandomPokemon(7);
+        Console.WriteLine("Enter how many Pokemon to randomly generate.");
 
-        //generate the list of pokemon, then print the list, so that any debug output associated with
-        //Pokemon generation is separated from desired output
+        bool success = false;
+        int numToGen = 0;
+        while (!success)
+        {
+            string input = Console.ReadLine();
+            success = Int32.TryParse(input, out numToGen);
+            if (success)
+            {
+                break;
+            }
+            Console.WriteLine("Please enter an integer.");
+        }
+
+        //Generate the list of pokemon, then print the list, so that any debug output associated with
+        //Pokemon generation is separated from desired output.
         List<Pokemon> pokemonList = new List<Pokemon>();
-        for (int i = 0; i < 100; i ++)
+        for (int i = 0; i < numToGen; i ++)
         {
             int randomPokedexNum = new Random().Next(Pokemon.MAX_POKEDEX_NUMBER) + 1; //in the range [1, MAX_POKEDEX_NUM]
             pokemonList.Add(GenerateRandomPokemon(randomPokedexNum));

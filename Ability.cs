@@ -6,6 +6,11 @@
 		private set;
 	}
 
+    public Ability(string name)
+    {
+        this.name = name;
+    }
+
     public Ability()
     {
         name = "";
