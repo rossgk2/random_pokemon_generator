@@ -1,8 +1,9 @@
 ﻿using System;
 
 /* Different Pokemon have different "Stats": Attack, Defence, Special Attack, Special Defense, Speed, IV, and EV.
- * Each Stat also has an associated EV and IV value. IV is randomly assigned an integer value between 0 and 31, and EV is
- * initalized to 0. The actual value of a specific stat (represented as "statValue" in this code) that a Pokemon gets is determined 
+ * Each Stat also has an associated EV and IV value. IV is randomly assigned an integer value between 0 and 31, and EV is 
+ * specific to each Stat (it is passed into the constructor). The actual value of a specific stat 
+ * (represented as "statValue" in this code) that a Pokemon gets is determined 
  * by the Pokemon's level, the Pokemon's "baseStatValue" field, and by a little bit of randomness.
  * 
  * Each Stat has an associated EV value. (EV is "effort" in PokeApi).
