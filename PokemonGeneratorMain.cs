@@ -152,6 +152,7 @@ public class PokemonGeneratorMain
         {
             int randomPokedexNum = new Random().Next(Pokemon.MAX_POKEDEX_NUMBER) + 1; //in the range [1, MAX_POKEDEX_NUM]
             pokemonList.Add(GenerateRandomPokemon(randomPokedexNum));
+            Console.WriteLine("Generated " + (i + 1) + " / " + numToGen + " of the Pokemon.");
         }
         
         Console.WriteLine();
