@@ -13,5 +13,4 @@ The Pokemon.exe file randomly generates as many Pokemon as the user specifies.
 
 In the code, the Pokemon class is the user interface between a programmer and a Pokemon that has been generated. Most of the
 properties that someone who has played a Pokemon game would immediately see are immediately available to the Pokemon class. If more
-in-detail, "behind the scenes" types of properties need to be accessed, this can be done by accessing the Pokemon's BaseStat object;
-this class is designed to contain these more obscure properties.
+in-detail, "behind the scenes" types of properties need to be accessed, this can be done by accessing the Pokemon's BaseStat object.
