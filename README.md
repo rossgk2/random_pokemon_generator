@@ -15,4 +15,4 @@ and are specific to the Pokemon, and some of them are partially random and parti
 
 In the code, the Pokemon class is the user interface between a programmer and a Pokemon that has been generated. Most of the
 properties that someone who has played a Pokemon game would immediately see are immediately available to the Pokemon class. If more
-in-detail, "behind the scenes" types of properties need to be accessed, this can be done by accessing the Pokemon's BaseStat object.
+in-detail, 'behind the scenes' types of properties need to be accessed, this can be done by accessing a Pokemon's BaseStat object.
