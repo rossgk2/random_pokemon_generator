@@ -161,5 +161,7 @@ public class PokemonGeneratorMain
 
         string output = string.Join(separator, pokemonList);
         Console.WriteLine(output);
+
+        Console.ReadLine();
     }
 }
