@@ -1,5 +1,5 @@
 # random_pokemon_generator
-A C# program that randomly generates Pokemon with stats, as would happen in a real Pokemon game. This program pulls data from the PokeAPI database (https://pokeapi.co/).
+A C# program that randomly generates Pokemon with stats, as would happen in a real Pokemon game. This program pulls data from the PokeAPI database (https://pokeapi.co/) and therefore requires an active internet connection.
 
 The Pokemon.exe file randomly generates as many Pokemon as the user specifies.
 
