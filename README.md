@@ -1,9 +1,9 @@
 # Random Pokemon generator
 The Pokemon.exe file randomly generates Pokemon with stats, as would happen in a real Pokemon game. This program pulls data from the PokeAPI database (https://pokeapi.co/) and therefore requires an active internet connection.
 
-<img src = "Pokemon.PNG" width = 400>
+### Note: to run the Pokemon.exe file, the Newtonsoft.Json.dll file must be in the same directory as the Pokemon.exe file and you must be connected to the internet.
 
-### Note: to run the Pokemon.exe file, the Newtonsoft.Json.dll file must be in the same directory as the Pokemon.exe file.
+<img src = "Pokemon.PNG" width = 400>
 
 Generated Pokemon have a PokedexID, which consists of the Pokemon's name and Pokedex number. They also have a level, which
 is a number randomly generated between 1 and 100, a gender, a list of types (such as "Water", "Fire", "Bug", "Grass", or "Dragon"),
