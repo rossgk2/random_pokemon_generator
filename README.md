@@ -1,5 +1,7 @@
-# random_pokemon_generator
+# Random Pokemon generator
 The Pokemon.exe file randomly generates Pokemon with stats, as would happen in a real Pokemon game. This program pulls data from the PokeAPI database (https://pokeapi.co/) and therefore requires an active internet connection.
+
+<img src = "Pokemon.PNG" width = 400>
 
 ### Note: to run the Pokemon.exe file, the Newtonsoft.Json.dll file must be in the same directory as the Pokemon.exe file.
 
